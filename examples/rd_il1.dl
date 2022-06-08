@@ -1,0 +1,54 @@
+.decl label(L:symbol)
+.input label
+
+.decl flow(L1:symbol, L2:symbol)
+.input flow
+
+.decl init(L:symbol)
+.input init
+
+.decl final(L:symbol)
+.input final
+
+.decl variable(L:symbol)
+.input variable
+
+.decl assignment(L:symbol)
+.input assignment
+
+.decl condition(L:symbol)
+.input condition
+
+.decl return(L:symbol)
+.input return
+
+.decl defined(V: symbol, L:symbol)
+.input defined
+ 
+
+.decl kill(L:symbol, V:symbol, D:symbol)
+
+kill(L, V, D) :-
+    defined(V, L),
+    defined(V, D),
+    L != D.
+ 
+kill(L, V, "?") :-
+    defined(V, L).
+
+.decl gen(L:symbol, V:symbol, D:symbol)
+
+gen(L, V, L) :- defined(V, L).
+
+.decl rd_entry(L:symbol, V:symbol, D:symbol)
+.decl rd_exit(L:symbol, V:symbol, D:symbol) 
+
+rd_entry(L, V, "?") :- init(L), variable(V).
+rd_entry(L, V, D) :- flow(L2, L), rd_exit(L2, V, D).
+rd_exit(L, V, D) :- rd_entry(L, V, D), !kill(L, V, D).
+rd_exit(L, V, D) :- gen(L, V, D).
+ 
+.decl result(L:symbol, V:symbol, D:symbol)
+.output result
+
+result(L, V, D) :- rd_entry(L, V, D).
